@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Run(cmd *cobra.Command, _ []string) {
+func RunListQueues(cmd *cobra.Command, _ []string) {
 	config := cmd.Context().Value(AwsConfig{}).(aws.Config)
 
 	client := helper.New(&config)
@@ -89,7 +89,7 @@ var listQueuesCmd = &cobra.Command{
 	Short:  "Lists aws queues",
 	Long:   `Lists aws queues based on name or all queues if no name is provided`,
 	PreRun: PreExecute,
-	Run:    Run,
+	Run:    RunListQueues,
 }
 
 func init() {
