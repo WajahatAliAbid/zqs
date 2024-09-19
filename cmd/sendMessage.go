@@ -7,11 +7,13 @@ import (
 	"ZenExtensions/sqs-plus/helper"
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/fs"
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pterm/pterm"
@@ -23,37 +25,34 @@ type JsonInfo struct {
 	FileName string                 `json:"fileName"`
 }
 
-func parseFile(filePath string) (*[]JsonInfo, error) {
-	results := []JsonInfo{}
+func parseFile(filePath string) (*[]map[string]interface{}, error) {
+	results := []map[string]interface{}{}
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 	byteValue, _ := io.ReadAll(file)
+	file.Close()
 	var result map[string]interface{}
 	err = json.Unmarshal(byteValue, &result)
 	if err == nil {
-		results = append(results, JsonInfo{
-			Message:  result,
-			FileName: filePath,
-		})
+		results = append(results, result)
 		return &results, nil
 	}
+
+	file, _ = os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
 
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example
 	for scanner.Scan() {
+
 		var result map[string]interface{}
 		err = json.Unmarshal(scanner.Bytes(), &result)
 		if err != nil {
 			return nil, err
 		}
 
-		results = append(results, JsonInfo{
-			Message:  result,
-			FileName: filePath,
-		})
+		results = append(results, result)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -77,6 +76,14 @@ func Find(root, ext string) ([]string, error) {
 	return a, nil
 }
 
+func chunkBy[T any](items []T, chunkSize int) [][]T {
+	var _chunks = make([][]T, 0, (len(items)/chunkSize)+1)
+	for chunkSize < len(items) {
+		items, _chunks = items[chunkSize:], append(_chunks, items[0:chunkSize:chunkSize])
+	}
+	return append(_chunks, items)
+}
+
 func RunSendMessages(cmd *cobra.Command, _ []string) {
 	config := cmd.Context().Value(AwsConfig{}).(aws.Config)
 	logger := pterm.DefaultBasicText
@@ -94,7 +101,7 @@ func RunSendMessages(cmd *cobra.Command, _ []string) {
 		os.Exit(1)
 	}
 
-	jsons := []JsonInfo{}
+	jsons := []map[string]interface{}{}
 
 	if fileName != "" {
 
@@ -147,6 +154,7 @@ func RunSendMessages(cmd *cobra.Command, _ []string) {
 			jsons = append(jsons, *infos...)
 		}
 	}
+	logger.Printfln("length: %d", len(jsons))
 
 	client := helper.New(&config)
 	queueName := cmd.Flag("queue-name").Value.String()
@@ -165,6 +173,37 @@ func RunSendMessages(cmd *cobra.Command, _ []string) {
 	}
 
 	logger.Printfln(queueUrl)
+	spinner := pterm.DefaultSpinner
+	spinner.Sequence = []string{
+		"🙈",
+		"🙉",
+		"🙊",
+	}
+	spinner.Delay = 300 * time.Millisecond
+	spinnerPrinter, _ := spinner.Start("Sending messages")
+	chunks := chunkBy(jsons, 10)
+
+	for _, chunk := range chunks {
+
+		err := client.SendMessages(
+			cmd.Context(),
+			&queueUrl,
+			&chunk,
+		)
+
+		spinnerPrinter.UpdateText(
+			fmt.Sprintf(
+				"Sent %d of %d messages",
+				len(chunk),
+				len(jsons),
+			),
+		)
+
+		if err != nil {
+			logger.Printfln(pterm.Red(err.Error()))
+			os.Exit(1)
+		}
+	}
 
 }
 

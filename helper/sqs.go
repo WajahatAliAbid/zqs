@@ -2,11 +2,14 @@ package helper
 
 import (
 	"context"
+	"encoding/hex"
+	"encoding/json"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"github.com/google/uuid"
 )
 
 type SqsClient struct {
@@ -136,4 +139,38 @@ func (s *SqsClient) ListQueuesWithAttributes(
 	names *[]string,
 ) (*[]QueueInfo, error) {
 	return s.ListQueues(ctx, names, true, true)
+}
+
+func uuidv5(data string) string {
+	bytes := []byte(data)
+	id := uuid.NewSHA1(uuid.NameSpaceURL, bytes)
+	return hex.EncodeToString(id[:])
+}
+
+func (s *SqsClient) SendMessages(
+	ctx context.Context,
+	queueUrl *string,
+	messages *[]map[string]interface{},
+) error {
+	if len(*messages) == 0 {
+		return nil
+	}
+	entries := []types.SendMessageBatchRequestEntry{}
+	for _, message := range *messages {
+		obj, _ := json.Marshal(message)
+		str_obj := string(obj)
+		id := uuidv5(str_obj)
+		entries = append(entries, types.SendMessageBatchRequestEntry{
+			Id:          &id,
+			MessageBody: &str_obj,
+		})
+	}
+	_, err := s.client.SendMessageBatch(ctx, &sqs.SendMessageBatchInput{
+		Entries:  entries,
+		QueueUrl: queueUrl,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
