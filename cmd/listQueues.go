@@ -4,7 +4,7 @@ Copyright © 2024 WajahatAliAbid
 package cmd
 
 import (
-	"ZenExtensions/sqs-plus/helper"
+	"ZenExtensions/zqs/helper"
 	"fmt"
 	"os"
 

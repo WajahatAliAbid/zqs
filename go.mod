@@ -1,4 +1,4 @@
-module ZenExtensions/sqs-plus
+module ZenExtensions/zqs
 
 go 1.22.0
 

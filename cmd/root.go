@@ -15,7 +15,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "sqs+ [sub]",
+	Use:   "zqs [sub]",
 	Short: "Command to extend functionality of aws sqs command",
 	Long:  `This command line extends the functionality of aws sqs command, not entirely replacing it, but making several functions simpler to do.`,
 }
