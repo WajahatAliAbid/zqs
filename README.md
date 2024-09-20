@@ -2,7 +2,7 @@
 # Zqs
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://opensource.org/licenses/)
 
-Zen extensions for AWS SQS. This commandline extends aws sqs cli to make it easier to send messages to a queue. 
+Zqs makes it easier to send messages to the Amazon SQS. Just provide it file or directory containing the file and watch it run the file(s) seamlessly
 
 ## Installation
 
@@ -14,24 +14,12 @@ go install github.com/github.com/ZenExtensions/zqs
     
 ## Features
 
-- Search for queues based on partial match
 - Run messages from a file
 - Run messages from a directory
 - Run providing queue name instead of queue url
 
 
 ## Usage/Examples
-List all queues
-```bash
-zqs list-queues
-```
-
-List queues containing name dlq
-
-```bash
-zqs list-queues -q "dlq"
-```
-
 Send json file data.json to the queue my-queue
 
 ```bash

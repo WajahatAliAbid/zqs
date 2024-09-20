@@ -13,13 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "zqs [sub]",
-	Short: "Command to extend functionality of aws sqs command",
-	Long:  `This command line extends the functionality of aws sqs command, not entirely replacing it, but making several functions simpler to do.`,
-}
-
 type AwsConfig struct {
 }
 
@@ -87,6 +80,16 @@ func PreExecute(cmd *cobra.Command, _ []string) {
 
 }
 
+var rootCmd = &cobra.Command{
+	Use:       "zqs [sub]",
+	Short:     "Send messages to the queue",
+	Long:      `Send messages to the queue, from either a single file or from a directory containing json files`,
+	PreRun:    PreExecute,
+	Run:       RunSendMessages,
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"queue_url"},
+}
+
 func Execute() {
 	rootCmd.PersistentFlags().StringP(
 		"profile",
@@ -100,6 +103,20 @@ func Execute() {
 		"r",
 		"",
 		"Region to use",
+	)
+
+	rootCmd.Flags().StringP(
+		"file",
+		"f",
+		"",
+		"File to send",
+	)
+
+	rootCmd.Flags().StringP(
+		"directory",
+		"d",
+		"",
+		"Directory to send",
 	)
 
 	err := rootCmd.Execute()

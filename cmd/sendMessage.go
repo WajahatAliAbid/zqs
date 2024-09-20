@@ -220,39 +220,3 @@ func RunSendMessages(cmd *cobra.Command, args []string) {
 	}
 
 }
-
-// sendMessagesCmd represents the sendMessages command
-var sendMessagesCmd = &cobra.Command{
-	Use:       "send-message",
-	Short:     "Send messages to the queue",
-	Long:      `Send messages to the queue, from either a single file or from a directory containing json files`,
-	PreRun:    PreExecute,
-	Run:       RunSendMessages,
-	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"queue_url"},
-}
-
-func init() {
-	// sendMessagesCmd.Flags().StringP(
-	// 	"queue-name",
-	// 	"q",
-	// 	"",
-	// 	"Name of the queue",
-	// )
-
-	sendMessagesCmd.Flags().StringP(
-		"file",
-		"f",
-		"",
-		"File to send",
-	)
-
-	sendMessagesCmd.Flags().StringP(
-		"directory",
-		"d",
-		"",
-		"Directory to send",
-	)
-
-	rootCmd.AddCommand(sendMessagesCmd)
-}
