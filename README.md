@@ -9,7 +9,7 @@ Zen extensions for AWS SQS. This commandline extends aws sqs cli to make it easi
 Install zqs using go cli
 
 ```bash
-go install github.com/ZenExtensions/zqs
+go install github.com/github.com/ZenExtensions/zqs
 ```
     
 ## Features
@@ -48,7 +48,7 @@ zqs send-message my-queue -d "./dir-of-files`"
 Clone the project
 
 ```bash
-git clone https://github.com/ZenExtensions/zqs
+git clone https://github.com/github.com/ZenExtensions/zqs
 ```
 
 Go to the project directory

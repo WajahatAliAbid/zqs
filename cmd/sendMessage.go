@@ -4,7 +4,6 @@ Copyright © 2024 WajahatAliAbid
 package cmd
 
 import (
-	"ZenExtensions/zqs/helper"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -14,6 +13,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/ZenExtensions/zqs/helper"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pterm/pterm"

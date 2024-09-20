@@ -1,4 +1,4 @@
-module ZenExtensions/zqs
+module github.com/ZenExtensions/zqs
 
 go 1.22.0
 
