@@ -23,4 +23,4 @@ jobs:
           version: latest
           args: release
         env:
-          GITHUB_TOKEN: ${{ secrets.PATH_GITHUB }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
