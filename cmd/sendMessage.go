@@ -118,7 +118,13 @@ func RunSendMessages(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		infos, err := parseFile(fileName)
+		filePath, err := filepath.Abs(fileName)
+		if err != nil {
+			logger.Printfln(pterm.Red(err.Error()))
+			os.Exit(1)
+		}
+
+		infos, err := parseFile(filePath)
 		if err != nil {
 			logger.Printfln(pterm.Red(err.Error()))
 			os.Exit(1)
@@ -140,7 +146,13 @@ func RunSendMessages(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		files, err := Find(directoryName, ".json")
+		dirPath, err := filepath.Abs(directoryName)
+		if err != nil {
+			logger.Printfln(pterm.Red(err.Error()))
+			os.Exit(1)
+		}
+
+		files, err := Find(dirPath, ".json")
 		if err != nil {
 			logger.Printfln(pterm.Red(err.Error()))
 			os.Exit(1)
