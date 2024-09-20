@@ -84,7 +84,8 @@ func chunkBy[T any](items []T, chunkSize int) [][]T {
 	return append(_chunks, items)
 }
 
-func RunSendMessages(cmd *cobra.Command, _ []string) {
+func RunSendMessages(cmd *cobra.Command, args []string) {
+
 	config := cmd.Context().Value(AwsConfig{}).(aws.Config)
 	logger := pterm.DefaultBasicText
 
@@ -157,7 +158,7 @@ func RunSendMessages(cmd *cobra.Command, _ []string) {
 	logger.Printfln("length: %d", len(jsons))
 
 	client := helper.New(&config)
-	queueName := cmd.Flag("queue-name").Value.String()
+	queueName := args[0]
 	queueUrlParsed, err := url.ParseRequestURI(queueName)
 	var queueUrl = ""
 	if err != nil {
@@ -209,20 +210,22 @@ func RunSendMessages(cmd *cobra.Command, _ []string) {
 
 // sendMessagesCmd represents the sendMessages command
 var sendMessagesCmd = &cobra.Command{
-	Use:    "send-message",
-	Short:  "Send messages to the queue",
-	Long:   `Send messages to the queue, from either a single file or from a directory containing json files`,
-	PreRun: PreExecute,
-	Run:    RunSendMessages,
+	Use:       "send-message",
+	Short:     "Send messages to the queue",
+	Long:      `Send messages to the queue, from either a single file or from a directory containing json files`,
+	PreRun:    PreExecute,
+	Run:       RunSendMessages,
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"queue_url"},
 }
 
 func init() {
-	sendMessagesCmd.Flags().StringP(
-		"queue-name",
-		"q",
-		"",
-		"Name of the queue",
-	)
+	// sendMessagesCmd.Flags().StringP(
+	// 	"queue-name",
+	// 	"q",
+	// 	"",
+	// 	"Name of the queue",
+	// )
 
 	sendMessagesCmd.Flags().StringP(
 		"file",
