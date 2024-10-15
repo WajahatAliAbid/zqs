@@ -6,15 +6,13 @@ package cmd
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/fs"
 	"net/url"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/ZenExtensions/zqs/helper"
+	"github.com/WajahattAliAbid/zqs/helper"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pterm/pterm"
@@ -168,8 +166,6 @@ func RunSendMessages(cmd *cobra.Command, args []string) {
 			jsons = append(jsons, *infos...)
 		}
 	}
-	logger.Printfln("length: %d", len(jsons))
-
 	client := helper.New(&config)
 	queueName := args[0]
 	queueUrlParsed, err := url.ParseRequestURI(queueName)
@@ -186,17 +182,22 @@ func RunSendMessages(cmd *cobra.Command, args []string) {
 		queueUrl = queueUrlParsed.String()
 	}
 
-	logger.Printfln(queueUrl)
-	spinner := pterm.DefaultSpinner
-	spinner.Sequence = []string{
-		"🙈",
-		"🙉",
-		"🙊",
+	progress_bar, err := pterm.DefaultProgressbar.
+		WithTitle("Sending messages").
+		WithTotal(len(jsons)).
+		WithCurrent(0).
+		WithShowElapsedTime(true).
+		WithShowCount(true).
+		WithRemoveWhenDone(false).
+		WithBarCharacter(pterm.DefaultBarChart.HorizontalBarCharacter).
+		WithShowPercentage(true).
+		WithShowTitle(true).
+		Start()
+	if err != nil {
+		logger.Printfln(pterm.Red(err.Error()))
+		os.Exit(1)
 	}
-	spinner.Delay = 300 * time.Millisecond
-	spinnerPrinter, _ := spinner.Start("Sending messages")
 	chunks := chunkBy(jsons, 10)
-
 	for _, chunk := range chunks {
 
 		err := client.SendMessages(
@@ -205,18 +206,16 @@ func RunSendMessages(cmd *cobra.Command, args []string) {
 			&chunk,
 		)
 
-		spinnerPrinter.UpdateText(
-			fmt.Sprintf(
-				"Sent %d of %d messages",
-				len(chunk),
-				len(jsons),
-			),
-		)
-
 		if err != nil {
 			logger.Printfln(pterm.Red(err.Error()))
 			os.Exit(1)
 		}
+
+		for i := 0; i < len(chunk); i++ {
+			progress_bar.Increment()
+		}
 	}
+
+	logger.Printfln(pterm.Green("Messages sent successfully"))
 
 }

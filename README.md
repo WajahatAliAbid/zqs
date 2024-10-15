@@ -9,7 +9,7 @@ Zqs makes it easier to send messages to the Amazon SQS. Just provide it file or 
 Install zqs using go cli
 
 ```bash
-go install github.com/ZenExtensions/zqs
+go install github.com/WajahatAliAbid/zqs
 ```
     
 ## Features
@@ -36,7 +36,7 @@ zqs send-message my-queue -d "./dir-of-files`"
 Clone the project
 
 ```bash
-git clone https://github.com/github.com/ZenExtensions/zqs
+git clone https://github.com/github.com/WajahatAliAbid/zqs
 ```
 
 Go to the project directory
